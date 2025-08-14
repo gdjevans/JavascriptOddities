@@ -1,45 +1,78 @@
 class Product {
-   // title = 'DEFAULT';
-   // imageUrl;
-   // description;
-   // price;
+  // title = 'DEFAULT';
+  // imageUrl;
+  // description;
+  // price;
 
-   constructor(title, image, desc, price) {
-      this.title = title;
-      this.imageUrl = image;
-      this.description = desc;
-      this.price = price;
-   }
+  constructor(title, image, desc, price) {
+    this.title = title;
+    this.imageUrl = image;
+    this.description = desc;
+    this.price = price;
+  }
+}
+
+class ShoppingCart {
+  items = [];
+
+  set cartItems(value) {
+    this.items = value;
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(2)}</h2>`;
+  }
+
+  get totalAmount() {
+    const sum = this.items.reduce(
+      (prevValue, curItem) => prevValue + curItem.price,
+      0
+    );
+    return sum;
+  }
+
+  addProduct(product) {
+    const updatedItems = [...this.items];
+    updatedItems.push(product);
+    this.cartItems = updatedItems;
+  }
+
+  render() {
+    const cartEl = document.createElement('section');
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    cartEl.className = 'cart';
+    this.totalOutput = cartEl.querySelector('h2');
+    return cartEl;
+  }
 }
 
 class ProductItem {
-   constructor(product) {
-      this.product = product;
-   }
+  constructor(product) {
+    this.product = product;
+  }
 
-   addToCart() {
-      console.log('Adding product to cart...');
-      console.log(this.product);
-   }
+  addToCart() {
+    App.addProductToCart(this.product);
+  }
 
-   render() {
-      const prodEl = document.createElement('li');
-         prodEl.className = 'product-item';
-         prodEl.innerHTML = `
-            <div>
-               <img src="${this.product.imageUrl}" alt="${this.product.title}" >
-               <div class="product-item__content">
-                  <h2>${this.product.title}</h2>
-                  <h3>\$${this.product.price}</h3>
-                  <p>${this.product.description}</p>
-                  <button>Add to Cart</button>
-               </div>
-            </div>
-         `;
-         const addCartButton = prodEl.querySelector('button');
-         addCartButton.addEventListener('click', this.addToCart.bind(this));
-      return prodEl;
-   }
+  render() {
+    const prodEl = document.createElement('li');
+    prodEl.className = 'product-item';
+    prodEl.innerHTML = `
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
+        </div>
+      `;
+    const addCartButton = prodEl.querySelector('button');
+    addCartButton.addEventListener('click', this.addToCart.bind(this));
+    return prodEl;
+  }
 }
 
 class ProductList {
@@ -56,36 +89,48 @@ class ProductList {
          'A grey carpet which is modern and nice', 
          89.99
       )
-
-      // {
-      //    title: 'A pillow',
-      //    imageUrl: 'https://simbasleep.com/cdn/shop/files/Hybrid_Pillow_Gallery_01.jpg?v=1752682205&width=980',
-      //    price: 19.99,
-      //    description: 'A soft pillow'
-      // },
-      // {
-      //    title: 'A carpet',
-      //    imageUrl: 'https://www.wilsonscarpets.com/cdn/shop/products/hazy-grey-meadow-saxony-carpet-lifestyle_600x600.jpg?v=1710511354',
-      //    price: 89.99,
-      //    description: 'A grey carpet which is modern and nice'
-      // }
    ];
 
    constructor() {}
 
    render() {
-      const renderHook = document.getElementById('app');
-      const prodList = document.createElement('ul');
-      prodList.className = 'product-list';
-      for (const prod of this.products) {
-         const productItem = new ProductItem(prod);
-         const prodEl = productItem.render();
-         prodList.append(prodEl);
-      }
-      renderHook.append(prodList);
-   }
+    const prodList = document.createElement('ul');
+    prodList.className = 'product-list';
+    for (const prod of this.products) {
+      const productItem = new ProductItem(prod);
+      const prodEl = productItem.render();
+      prodList.append(prodEl);
+    }
+    return prodList;
+  }
 }
 
+class Shop {
+  render() {
+    const renderHook = document.getElementById('app');
 
-const productList = new ProductList();
-productList.render();
+    this.cart = new ShoppingCart();
+    const cartEl = this.cart.render();
+    const productList = new ProductList();
+    const prodListEl = productList.render();
+
+    renderHook.append(cartEl);
+    renderHook.append(prodListEl);
+  }
+}
+
+class App {
+  static cart;
+
+  static init() {
+    const shop = new Shop();
+    shop.render();
+    this.cart = shop.cart;
+  }
+
+  static addProductToCart(product) {
+    this.cart.addProduct(product);
+  }
+}
+
+App.init();
