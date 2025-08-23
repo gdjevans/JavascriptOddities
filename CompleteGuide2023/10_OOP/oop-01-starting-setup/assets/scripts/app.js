@@ -120,15 +120,16 @@ class ProductItem extends Component {
 }
 
 class ProductList extends Component {
-  products = [];
+  #products = [];
 
   constructor(renderHookId) {
-    super(renderHookId);
+    super(renderHookId, false);
+    this.render();
     this.fetchProducts();
   }
 
   fetchProducts() {
-    this.products = [
+    this.#products = [
       new Product(
          'A pillow', 
          'https://simbasleep.com/cdn/shop/files/Hybrid_Pillow_Gallery_01.jpg?v=1752682205&width=980', 
@@ -146,7 +147,7 @@ class ProductList extends Component {
   }
 
      renderProducts() {
-    for (const prod of this.products) {
+    for (const prod of this.#products) {
       new ProductItem(prod, 'prod-list');
     }
   }
@@ -155,7 +156,7 @@ class ProductList extends Component {
     this.createRootElement('ul', 'product-list', [
       new ElementAttribute('id', 'prod-list')
     ]);
-    if (this.products && this.products.length > 0) {
+    if (this.#products && this.#products.length > 0) {
       this.renderProducts();
     }
   }
